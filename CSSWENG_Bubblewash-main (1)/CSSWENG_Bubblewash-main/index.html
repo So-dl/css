@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#eaf6ff">
+  <meta name="description" content="BubbleWash laundry workspace for customers, orders, and payment history.">
+  <title>Customers | BubbleWash</title>
+
+  <!-- The compiled stylesheet is checked in, so this page works without npm. -->
+  <link rel="stylesheet" href="./css/output.css">
+  <link rel="stylesheet" href="./css/app.css">
+  <link rel="stylesheet" href="./css/workspace.css">
+  <script src="./js/runtime-config.js" defer></script>
+  <script src="./js/bootstrap.js" defer></script>
+</head>
+<body>
+  <div class="app" id="app">
+    <!-- SIDEBAR: Only the sections that were not crossed out in the reference. -->
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="sidebar-header">
+        <a class="brand" href="#overview" aria-label="BubbleWash home">
+          <span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M5 8h14M8 5.5h.01M11 5.5h.01"/><circle cx="12" cy="14" r="4"/><path d="M8.5 14c2-2 4 2 7 0"/></svg></span>
+          <span class="brand-name">BubbleWash<small>PRO POS <span>· Laundry care</span></small></span>
+        </a>
+        <button
+          class="icon-button sidebar-toggle"
+          id="sidebarToggle"
+          type="button"
+          aria-label="Collapse sidebar"
+          aria-expanded="true"
+          title="Collapse sidebar"
+        >
+          <span data-icon="panel-left"></span>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Sections">
+        <p class="nav-section-label">MAIN</p>
+        <a class="nav-link" href="#overview" data-page="overview" aria-label="Overview" title="Overview">
+          <span data-icon="layout-dashboard"></span>
+          <span class="nav-text">Overview</span>
+        </a>
+        <a class="nav-link active" href="#customers" data-page="customers" aria-current="page" aria-label="Customers" title="Customers">
+          <span data-icon="users"></span>
+          <span class="nav-text">Customers</span>
+        </a>
+        <a class="nav-link" href="#transactions" data-page="transactions" aria-label="Transactions" title="Transactions">
+          <span data-icon="receipt"></span>
+          <span class="nav-text">Transactions</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a class="nav-link" href="#settings" data-page="settings" aria-label="Settings" title="Settings">
+          <span data-icon="settings"></span>
+          <span class="nav-text">Settings</span>
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="workspace-context"><span class="workspace-identity">A fresh start for every load.<span class="workspace-edition">BubbleWash workspace</span></span><span class="demo-caption">Demo workspace</span></div>
+      <section class="workspace-page hidden" id="overviewPage" aria-labelledby="overviewTitle"></section>
+      <section class="workspace-page hidden" id="transactionsPage" aria-labelledby="transactionsTitle"></section>
+      <!-- CUSTOMER LIST -->
+      <section class="customer-page" id="customerPage" aria-labelledby="customersTitle">
+        <header class="page-header">
+          <div>
+            <h1 id="customersTitle">Customers</h1>
+            <p>View and manage customer records in one place.</p>
+          </div>
+
+          <div class="search-field">
+            <label class="sr-only" for="searchInput">Search customers by name or phone number</label>
+            <input
+              type="search"
+              id="searchInput"
+              placeholder="Search customers..."
+              autocomplete="off"
+            >
+            <span data-icon="search" aria-hidden="true"></span>
+            <button class="search-clear hidden" id="clearCustomerSearch" type="button" aria-label="Clear customer search"><span data-icon="x"></span></button>
+          </div>
+        </header>
+
+        <section class="customer-panel" aria-label="Customer records">
+          <div class="toolbar">
+<div class="filters"><span class="muted">All customers</span></div>
+
+            <button class="primary-button signature-action" type="button" id="addCustomerButton">
+              <span data-icon="plus" aria-hidden="true"></span>
+              Add customer
+            </button>
+          </div>
+
+          <div class="table-container" tabindex="0" role="region" aria-label="Customer records table">
+            <table class="customer-table">
+              <thead>
+                <tr>
+                  <th scope="col">Customer</th>
+                  <th scope="col">Phone number</th>
+                  <th scope="col">Orders</th>
+                  <th scope="col">Services used</th>
+                  <th scope="col">Order value</th>
+                  <th scope="col">Customer since</th>
+                </tr>
+              </thead>
+              <tbody id="customerRows">
+                <!-- Customer rows are generated by js/app.js. -->
+              </tbody>
+            </table>
+            <div class="empty-state hidden" id="emptyState" role="status">
+              <span class="empty-state-icon" data-icon="search"></span>
+              <strong>No matching customers</strong>
+              <p>Try a different search or remove a filter.</p>
+              <button type="button" class="text-button" id="clearFiltersButton">Clear filters</button>
+            </div>
+          </div>
+
+          <footer class="table-footer">
+            <p id="resultsLabel" aria-live="polite"></p>
+            <nav class="pagination" id="pagination" aria-label="Customer list pages"></nav>
+          </footer>
+        </section>
+      </section>
+
+      <!-- Placeholder destinations owned by other teammates. -->
+      <section class="other-page hidden" id="otherPage" aria-labelledby="otherPageTitle">
+        <header class="page-header">
+          <div>
+            <h1 id="otherPageTitle">Overview</h1>
+            <p>This section can be integrated with the rest of your team's application.</p>
+          </div>
+        </header>
+        <div class="other-page-content">
+          <span data-icon="layout-dashboard"></span>
+          <h2>Module placeholder</h2>
+          <p>Your team can add this feature later.</p>
+          <a class="primary-button" href="#customers">Back to customers</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ADD / EDIT CUSTOMER DIALOG -->
+  <div class="modal-overlay hidden" id="formOverlay">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+      <header class="modal-header">
+        <div>
+          <span class="eyebrow">CUSTOMER RECORD</span>
+          <h2 id="formTitle">Add customer</h2>
+        </div>
+        <button class="icon-button" type="button" id="closeFormButton" aria-label="Close dialog">
+          <span data-icon="x"></span>
+        </button>
+      </header>
+
+      <form id="customerForm" novalidate>
+        <div class="form-grid">
+          <label class="form-field">
+            <span>First name <span class="required-mark">*</span></span>
+            <input id="firstName" name="firstName" required maxlength="30" placeholder="e.g. Maria">
+          </label>
+          <label class="form-field">
+            <span>Last name <span class="required-mark">*</span></span>
+            <input id="lastName" name="lastName" required maxlength="30" placeholder="e.g. Santos">
+          </label>
+          <label class="form-field full-width">
+            <span>Contact number <span class="muted">(optional)</span></span>
+            <input id="phoneNumber" name="phoneNumber" type="tel" maxlength="30" placeholder="e.g. 0912 345 6789">
+          </label>
+
+        </div>
+        <p class="form-error hidden" id="formError" role="alert"></p>
+        <div class="modal-actions">
+          <button class="secondary-button" type="button" id="cancelFormButton">Cancel</button>
+          <button class="primary-button" type="submit" id="saveCustomerButton">Save customer</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- CUSTOMER DETAIL DIALOG -->
+  <div class="modal-overlay hidden" id="detailOverlay">
+    <section class="modal detail-modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+      <header class="modal-header">
+        <div>
+          <span class="eyebrow">CUSTOMER PROFILE</span>
+          <h2 id="detailTitle">Customer details</h2>
+        </div>
+        <button class="icon-button" type="button" id="closeDetailButton" aria-label="Close customer details">
+          <span data-icon="x"></span>
+        </button>
+      </header>
+      <div class="detail-identity">
+        <div>
+          <h3 id="detailName"></h3>
+          <p id="detailSubheading">Sample customer record</p>
+        </div>
+      </div>
+      <dl class="detail-fields" id="detailFields"></dl>
+      <section class="panel customer-orders" aria-labelledby="customerOrdersTitle">
+        <header class="panel-header"><div class="panel-heading"><h3 id="customerOrdersTitle">Customer orders</h3><p>Order details and services linked to this customer.</p></div></header>
+        <div class="table-container" tabindex="0" role="region" aria-label="Customer orders table">
+          <table class="workspace-table"><thead id="customerOrderHead"></thead><tbody id="customerOrderRows"></tbody></table>
+          <div class="empty-state hidden" id="customerOrdersEmpty" role="status"><strong>No orders yet</strong><p>This customer has no linked orders or service history.</p></div>
+        </div>
+        <footer class="table-footer"><p id="customerOrdersResults" aria-live="polite"></p><nav class="pagination" id="customerOrdersPagination" aria-label="Customer orders pages"></nav></footer>
+      </section>
+      <div class="modal-actions space-between">
+        <button class="secondary-button danger-button" type="button" id="deleteCustomerButton">
+          <span data-icon="trash"></span>
+          Delete
+        </button>
+        <div class="detail-actions">
+          <button class="secondary-button" type="button" id="dismissDetailButton">Close</button>
+          <button class="primary-button" type="button" id="editCustomerButton">
+            <span data-icon="pencil"></span>
+            Edit customer
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
