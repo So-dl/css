@@ -321,7 +321,8 @@
     overlay.classList.toggle('hidden', !visible);
 
     const anyOpen = !byId('formOverlay').classList.contains('hidden') ||
-                    !byId('detailOverlay').classList.contains('hidden');
+                    !byId('detailOverlay').classList.contains('hidden') ||
+                    !byId('adminOverlay').classList.contains('hidden');
 
     document.body.classList.toggle('dialog-open', anyOpen);
     byId('app').inert = anyOpen;
@@ -353,6 +354,74 @@
     toggleOverlay('formOverlay', false);
     state.editingId = null;
     state.previousFocus?.focus?.();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Add admin (shared-database mode, Admin role only)
+  // ---------------------------------------------------------------------------
+
+  const ADMIN_FIELDS = ['adminFirstName', 'adminLastName', 'adminUsername', 'adminPassword', 'adminPasswordConfirm'];
+
+  function showAdminError(message, fieldId) {
+    const error = byId('adminFormError');
+    error.textContent = message;
+    error.classList.remove('hidden');
+    if (fieldId) {
+      byId(fieldId).setAttribute('aria-invalid', 'true');
+      byId(fieldId).setAttribute('aria-describedby', 'adminFormError');
+      byId(fieldId).focus();
+    }
+  }
+
+  function openAdminForm() {
+    state.previousFocus = document.activeElement;
+    byId('adminForm').reset();
+    byId('adminFormError').classList.add('hidden');
+    ADMIN_FIELDS.forEach((id) => byId(id).removeAttribute('aria-invalid'));
+    toggleOverlay('detailOverlay', false);
+    toggleOverlay('adminOverlay', true);
+    byId('adminFirstName').focus();
+  }
+
+  function closeAdminForm() {
+    toggleOverlay('adminOverlay', false);
+    byId('adminForm').reset();
+    state.previousFocus?.focus?.();
+  }
+
+  async function saveAdmin(event) {
+    event.preventDefault();
+    ADMIN_FIELDS.forEach((id) => byId(id).removeAttribute('aria-invalid'));
+    byId('adminFormError').classList.add('hidden');
+
+    const firstName = byId('adminFirstName').value.trim();
+    const lastName = byId('adminLastName').value.trim();
+    const username = byId('adminUsername').value.trim();
+    const password = byId('adminPassword').value;
+    const confirm = byId('adminPasswordConfirm').value;
+
+    if (!firstName || firstName.length > 30) return showAdminError('Enter a first name of up to 30 characters.', 'adminFirstName');
+    if (!lastName || lastName.length > 30) return showAdminError('Enter a last name of up to 30 characters.', 'adminLastName');
+    if (!/^[A-Za-z0-9_.-]{3,30}$/.test(username)) return showAdminError('Username must be 3–30 letters, numbers, dots, dashes or underscores.', 'adminUsername');
+    if (password.length < 12 || password.length > 128) return showAdminError('Password must be 12–128 characters.', 'adminPassword');
+    if (password !== confirm) return showAdminError('Passwords do not match.', 'adminPasswordConfirm');
+
+    if (!window.LaundryBackend) return showAdminError('Admins can only be added when connected to the shared database.');
+
+    try {
+      const record = await window.LaundryPersistence.withBusy(byId('adminForm'), () =>
+        window.LaundryBackend.request('/api/users', {
+          method: 'POST',
+          body: { first_name: firstName, last_name: lastName, username, password }
+        }));
+      if (!record) return;
+      const data = window.LaundryBackend.data;
+      data.users = [...(data.users || []), { user_id: record.user_id, first_name: record.first_name, last_name: record.last_name }];
+      closeAdminForm();
+      showToast(`Admin "${record.username}" added.`);
+    } catch (error) {
+      showAdminError(error.message);
+    }
   }
 
   function showFormError(message) {
@@ -621,6 +690,12 @@
       openCustomerDetails(row.dataset.customerId);
     });
 
+    byId('addAdminButton').addEventListener('click', openAdminForm);
+    byId('closeAdminButton').addEventListener('click', closeAdminForm);
+    byId('cancelAdminButton').addEventListener('click', closeAdminForm);
+    byId('adminForm').addEventListener('submit', saveAdmin);
+    byId('addAdminButton').classList.toggle('hidden', window.LaundryBackend?.data?.user?.role !== 'Admin');
+
     byId('addCustomerButton').addEventListener('click', () => openForm());
     byId('closeFormButton').addEventListener('click', closeForm);
     byId('cancelFormButton').addEventListener('click', closeForm);
@@ -631,12 +706,13 @@
     byId('editCustomerButton').addEventListener('click', () => openForm(state.selectedId));
     byId('deleteCustomerButton').addEventListener('click', deleteSelectedCustomer);
 
-    ['formOverlay', 'detailOverlay'].forEach((id) => {
+    ['formOverlay', 'detailOverlay', 'adminOverlay'].forEach((id) => {
       const overlay = byId(id);
       overlay.addEventListener('click', (event) => {
         if (event.target !== overlay) return;
         if (id === 'formOverlay') closeForm();
         if (id === 'detailOverlay') closeDetails();
+        if (id === 'adminOverlay') closeAdminForm();
       });
     });
 
@@ -653,7 +729,9 @@
       }
       if (event.key !== 'Escape') return;
 
-      if (!byId('formOverlay').classList.contains('hidden')) {
+      if (!byId('adminOverlay').classList.contains('hidden')) {
+        closeAdminForm();
+      } else if (!byId('formOverlay').classList.contains('hidden')) {
         closeForm();
       } else if (!byId('detailOverlay').classList.contains('hidden')) {
         closeDetails();
