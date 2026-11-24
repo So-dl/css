@@ -1,7 +1,7 @@
 'use strict';
 const {randomBytes,scrypt:derive,timingSafeEqual}=require('node:crypto');
 const {promisify}=require('node:util');
-const {decimal,fail,text}=require('./domain');
+const {decimal,fail,text,clean}=require('./domain');
 const scrypt=promisify(derive);
 async function hashPassword(password) {const salt=randomBytes(16).toString('hex');const hash=await scrypt(password,salt,64);return salt+':'+hash.toString('hex');}
 async function verifyPassword(password,stored) {const [salt,hex]=stored.split(':');const result=await scrypt(password,salt,64);const expected=Buffer.from(hex,'hex');return result.length===expected.length&&timingSafeEqual(result,expected);}
@@ -35,4 +35,13 @@ async function provision(db,{username,password}) {
     if(!await db.collection('services').findOne({service_name})) await db.collection('services').insertOne({service_id:await nextId(db,'services'),service_name,description:null,pricing_unit,unit_price:decimal(price*100),service_status:'Active'});
   }
 }
-module.exports={initialize,provision,nextId,hashPassword,verifyPassword};
+async function createAdmin(db,body) {
+  const first_name=text(body.first_name,'First name',30),last_name=text(body.last_name,'Last name',30),username=text(body.username,'Username',30);
+  if(!/^[A-Za-z0-9_.-]{3,30}$/.test(username))fail('Username must be 3–30 letters, numbers, dots, dashes or underscores.');
+  if(typeof body.password!=='string'||body.password.length<12||body.password.length>128)fail('Password must be 12–128 characters.');
+  if(await db.collection('users').findOne({username}))fail('That username is already taken.',409);
+  const user={user_id:await nextId(db,'users'),first_name,last_name,username,password_hash:await hashPassword(body.password),role:'Admin',account_status:'Active',created_at:new Date()};
+  try{await db.collection('users').insertOne(user);}catch(error){if(error.code===11000)fail('That username is already taken.',409);throw error;}
+  return clean(user);
+}
+module.exports={initialize,provision,nextId,hashPassword,verifyPassword,createAdmin};
