@@ -5,7 +5,7 @@ const {rateLimit}=require('express-rate-limit');
 const {randomBytes,createHash}=require('node:crypto');
 const path=require('node:path');
 const {AppError,fail,id,date,clean}=require('./domain');
-const {hashPassword,verifyPassword}=require('./database');
+const {hashPassword,verifyPassword,createAdmin}=require('./database');
 const {snapshot,command,saveCustomer,deleteCustomer}=require('./service');
 const root=path.resolve(__dirname,'..');
 const tokenHash=(token)=>createHash('sha256').update(token).digest('hex');
@@ -43,6 +43,10 @@ async function createApp({client,db,origin='http://localhost:3000',secure=false}
   app.post('/api/customers',async(req,res)=>res.status(201).json(await saveCustomer(client,db,req.body,null,{key:req.get('idempotency-key'),userId:req.user.user_id})));
   app.patch('/api/customers/:id',async(req,res)=>res.json(await saveCustomer(client,db,req.body,id(Number(req.params.id)))));
   app.delete('/api/customers/:id',async(req,res)=>{await deleteCustomer(client,db,id(Number(req.params.id)),id(req.body._version,'Version'));res.json({ok:true});});
+  app.post('/api/users',async(req,res)=>{
+    if(req.user.role!=='Admin')fail('Only admins can add other admins.',403);
+    res.status(201).json(await createAdmin(db,req.body));
+  });
   function filter(req,field) {
     const match={};
     if(req.query.from||req.query.to) {
