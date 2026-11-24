@@ -5,7 +5,7 @@ const {initialize,provision}=require('./database');
 const {createApp}=require('./app');
 async function main() {
   if(!process.env.MONGODB_URI)throw new Error('Create .env from .env.example and set MONGODB_URI.');
-  const port=Number(process.env.PORT||3000),host=process.env.HOST||'127.0.0.1';
+  const port=Number(process.env.PORT||3000),host=process.env.HOST||'0.0.0.0';
   const dbName=process.env.MONGODB_DB||'bubblewash_development';
   if(!/^[a-zA-Z0-9_-]+$/.test(dbName))throw new Error('Use a simple MONGODB_DB name.');
   const client=new MongoClient(process.env.MONGODB_URI,{serverSelectionTimeoutMS:10000});
