@@ -88,6 +88,11 @@
           <div class="toolbar">
 <div class="filters"><span class="muted">All customers</span></div>
 
+            <button class="primary-button signature-action hidden" type="button" id="addAdminButton">
+              <span data-icon="plus" aria-hidden="true"></span>
+              Add admin
+            </button>
+
             <button class="primary-button signature-action" type="button" id="addCustomerButton">
               <span data-icon="plus" aria-hidden="true"></span>
               Add customer
@@ -176,6 +181,51 @@
         <div class="modal-actions">
           <button class="secondary-button" type="button" id="cancelFormButton">Cancel</button>
           <button class="primary-button" type="submit" id="saveCustomerButton">Save customer</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- ADD ADMIN DIALOG -->
+  <div class="modal-overlay hidden" id="adminOverlay">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="adminFormTitle">
+      <header class="modal-header">
+        <div>
+          <span class="eyebrow">WORKSPACE ACCESS</span>
+          <h2 id="adminFormTitle">Add admin</h2>
+        </div>
+        <button class="icon-button" type="button" id="closeAdminButton" aria-label="Close dialog">
+          <span data-icon="x"></span>
+        </button>
+      </header>
+
+      <form id="adminForm" novalidate>
+        <div class="form-grid">
+          <label class="form-field">
+            <span>First name <span class="required-mark">*</span></span>
+            <input id="adminFirstName" required maxlength="30" autocomplete="off" placeholder="e.g. Maria">
+          </label>
+          <label class="form-field">
+            <span>Last name <span class="required-mark">*</span></span>
+            <input id="adminLastName" required maxlength="30" autocomplete="off" placeholder="e.g. Santos">
+          </label>
+          <label class="form-field full-width">
+            <span>Username <span class="required-mark">*</span></span>
+            <input id="adminUsername" required maxlength="30" autocomplete="off" placeholder="3–30 letters, numbers, . - _">
+          </label>
+          <label class="form-field">
+            <span>Password <span class="required-mark">*</span></span>
+            <input id="adminPassword" type="password" required maxlength="128" autocomplete="new-password" placeholder="At least 12 characters">
+          </label>
+          <label class="form-field">
+            <span>Confirm password <span class="required-mark">*</span></span>
+            <input id="adminPasswordConfirm" type="password" required maxlength="128" autocomplete="new-password">
+          </label>
+        </div>
+        <p class="form-error hidden" id="adminFormError" role="alert"></p>
+        <div class="modal-actions">
+          <button class="secondary-button" type="button" id="cancelAdminButton">Cancel</button>
+          <button class="primary-button" type="submit" id="saveAdminButton">Save admin</button>
         </div>
       </form>
     </section>
